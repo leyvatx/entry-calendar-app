@@ -12,8 +12,14 @@ class AppointmentType < ApplicationRecord
   validates :color, inclusion: { in: COLORS }
   validate :name_must_be_unique
 
+  scope :with_appointments_count, -> {
+    left_joins(:appointments)
+      .select("appointment_types.*, COUNT(appointments.id) AS appointments_count")
+      .group("appointment_types.id")
+  }
+
   def as_json(options = nil)
-    super({ except: :normalized_name }.merge(options || {}))
+    super({ only: %i[id name color appointments_count] }.merge(options || {}))
   end
 
   private

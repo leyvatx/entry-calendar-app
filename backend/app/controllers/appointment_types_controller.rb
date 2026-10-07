@@ -3,7 +3,7 @@ class AppointmentTypesController < ApplicationController
 
   # GET /appointment_types
   def index
-    @appointment_types = AppointmentType.all
+    @appointment_types = AppointmentType.with_appointments_count.order(:normalized_name)
 
     render json: @appointment_types
   end

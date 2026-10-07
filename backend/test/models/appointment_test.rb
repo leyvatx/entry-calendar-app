@@ -43,4 +43,9 @@ class AppointmentTest < ActiveSupport::TestCase
   test "squishes the title" do
     assert_equal "Cita médica", Appointment.new(title: "  Cita   médica ").title
   end
+
+  test "squishes the location and leaves it empty when blank" do
+    assert_equal "Hospital general", Appointment.new(location: "  Hospital   general ").location
+    assert_nil Appointment.new(location: "   ").location
+  end
 end

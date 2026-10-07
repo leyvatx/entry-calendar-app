@@ -2,6 +2,7 @@ class Appointment < ApplicationRecord
   belongs_to :appointment_type
 
   normalizes :title, with: ->(title) { title.squish }
+  normalizes :location, with: ->(location) { location.squish.presence }
 
   validates :title, :starts_at, presence: true
   validate :ends_at_not_before_starts_at

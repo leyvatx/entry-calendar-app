@@ -1,0 +1,15 @@
+export const MESSAGES = {
+  typeNameRequired: 'El nombre es obligatorio',
+  typeNameTaken: 'Ya existe un tipo de cita con ese nombre',
+  colorInvalid: 'Elige un color de la paleta',
+  typeHasAppointments: 'No se puede eliminar: hay citas con este tipo. Cambia su tipo o elimínalas primero',
+  titleRequired: 'El título es obligatorio',
+  typeRequired: 'Selecciona un tipo de cita',
+  startsAtRequired: 'La fecha de inicio es obligatoria',
+  endsAtBeforeStart: 'La fecha de fin no puede ser anterior a la de inicio',
+  personNameRequired: 'El nombre de la persona es obligatorio',
+  filterRangeInvalid: 'La fecha final no puede ser anterior a la inicial',
+  notFound: 'No encontramos lo que buscas; puede que se haya eliminado',
+  network: 'No se pudo conectar con el servidor. Revisa que esté encendido e intenta de nuevo',
+  unexpected: 'Algo salió mal. Intenta de nuevo',
+}

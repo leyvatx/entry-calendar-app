@@ -9,6 +9,8 @@ es:
             name:
               blank: "El nombre es obligatorio"
               taken: "Ya existe un tipo de cita con ese nombre"
+            color:
+              inclusion: "Elige un color de la paleta"
         appointment:
           attributes:
             appointment_type:

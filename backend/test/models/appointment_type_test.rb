@@ -16,6 +16,21 @@ class AppointmentTypeTest < ActiveSupport::TestCase
     assert_equal [ "Ya existe un tipo de cita con ese nombre" ], appointment_type.errors[:name]
   end
 
+  test "uses blue when no color is given" do
+    assert_equal "blue", AppointmentType.create!(name: "Escuela").color
+  end
+
+  test "stores the color in lowercase" do
+    assert_equal "green", AppointmentType.create!(name: "Escuela", color: " Green ").color
+  end
+
+  test "requires a color from the palette" do
+    appointment_type = AppointmentType.new(name: "Escuela", color: "teal")
+
+    assert_not appointment_type.valid?
+    assert_equal [ "Elige un color de la paleta" ], appointment_type.errors[:color]
+  end
+
   test "keeps its own name when updated" do
     appointment_type = appointment_types(:one)
 

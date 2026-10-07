@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_231307) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_07_232805) do
   create_table "appointment_types", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "normalized_name", null: false
+    t.string "color", default: "blue", null: false
     t.index ["normalized_name"], name: "index_appointment_types_on_normalized_name", unique: true
   end
 

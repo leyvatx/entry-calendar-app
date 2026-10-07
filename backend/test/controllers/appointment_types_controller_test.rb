@@ -12,10 +12,20 @@ class AppointmentTypesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create appointment_type" do
     assert_difference("AppointmentType.count") do
-      post appointment_types_url, params: { appointment_type: { name: @appointment_type.name } }, as: :json
+      post appointment_types_url, params: { appointment_type: { name: "Escuela" } }, as: :json
     end
 
     assert_response :created
+    assert_not response.parsed_body.key?("normalized_name")
+  end
+
+  test "should not create appointment_type with a taken name" do
+    assert_no_difference("AppointmentType.count") do
+      post appointment_types_url, params: { appointment_type: { name: "SALUD" } }, as: :json
+    end
+
+    assert_response :unprocessable_content
+    assert_equal({ "name" => [ "Ya existe un tipo de cita con ese nombre" ] }, response.parsed_body)
   end
 
   test "should show appointment_type" do

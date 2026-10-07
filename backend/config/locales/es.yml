@@ -5,6 +5,10 @@ es:
         appointment_type:
           restrict_dependent_destroy:
             has_many: "No se puede eliminar: hay citas con este tipo. Cambia su tipo o elimínalas primero"
+          attributes:
+            name:
+              blank: "El nombre es obligatorio"
+              taken: "Ya existe un tipo de cita con ese nombre"
         appointment:
           attributes:
             appointment_type:

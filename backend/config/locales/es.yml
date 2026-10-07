@@ -2,6 +2,9 @@ es:
   activerecord:
     errors:
       models:
+        appointment_type:
+          restrict_dependent_destroy:
+            has_many: "No se puede eliminar: hay citas con este tipo. Cambia su tipo o elimínalas primero"
         appointment:
           attributes:
             appointment_type:

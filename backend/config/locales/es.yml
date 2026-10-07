@@ -1,0 +1,10 @@
+es:
+  activerecord:
+    errors:
+      models:
+        appointment:
+          attributes:
+            appointment_type:
+              required: "Selecciona un tipo de cita"
+  errors:
+    format: "%{message}"

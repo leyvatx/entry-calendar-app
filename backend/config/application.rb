@@ -22,6 +22,9 @@ module Backend
     # in config/environments, which are processed later.
     #
     config.time_zone = "America/Tijuana"
+    config.i18n.default_locale = :es
+    config.i18n.available_locales = %i[es en]
+    config.i18n.fallbacks = [ :en ]
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Only loads a smaller set of middleware suitable for API only apps.

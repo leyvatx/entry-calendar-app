@@ -15,5 +15,9 @@ es:
           attributes:
             appointment_type:
               required: "Selecciona un tipo de cita"
+            title:
+              blank: "El título es obligatorio"
+            starts_at:
+              blank: "La fecha de inicio es obligatoria"
   errors:
     format: "%{message}"

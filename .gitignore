@@ -1,1 +1,6 @@
+/backend/log/*
+!/backend/log/.keep
 /backend/tmp/*
+/backend/storage/*
+!/backend/storage/.keep
+/backend/config/master.key

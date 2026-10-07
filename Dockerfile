@@ -12,6 +12,4 @@ RUN bundle install
 
 COPY . .
 
-RUN rails webpacker:install
-
 CMD ["rails", "db:setup"]

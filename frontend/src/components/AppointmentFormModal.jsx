@@ -15,6 +15,10 @@ function initialValues(state) {
   return { starts_at: state?.date?.hour(9).minute(0).second(0), people: [] }
 }
 
+const keepEnterInPicker = (event) => {
+  if (event.key === 'Enter') event.preventDefault()
+}
+
 const endsAfterStart = ({ getFieldValue }) => ({
   validator: (_, endsAt) => {
     const startsAt = getFieldValue('starts_at')
@@ -110,12 +114,12 @@ export default function AppointmentFormModal({ state, onClose, onSaved }) {
           </Col>
           <Col xs={24} md={12}>
             <Form.Item label="Inicio" name="starts_at" rules={[{ required: true, message: MESSAGES.startsAtRequired }]}>
-              <DatePicker showTime format={DATE_TIME_FORMAT} minuteStep={5} inputReadOnly={!screens.md} style={{ width: '100%' }} />
+              <DatePicker showTime format={DATE_TIME_FORMAT} minuteStep={5} inputReadOnly={!screens.md} onKeyDown={keepEnterInPicker} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item label="Fin" name="ends_at" dependencies={['starts_at']} rules={[endsAfterStart]}>
-              <DatePicker showTime allowClear format={DATE_TIME_FORMAT} minuteStep={5} inputReadOnly={!screens.md} style={{ width: '100%' }} />
+              <DatePicker showTime allowClear format={DATE_TIME_FORMAT} minuteStep={5} inputReadOnly={!screens.md} onKeyDown={keepEnterInPicker} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col span={24}>

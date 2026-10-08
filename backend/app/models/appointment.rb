@@ -10,14 +10,17 @@ class Appointment < ApplicationRecord
   validates :title, :starts_at, presence: true
   validate :ends_at_not_before_starts_at
 
+  before_save { self.search_text = TextNormalizer.call("#{title} #{notes}") }
+
   scope :chronological, -> { order(:starts_at, :id) }
   scope :overlapping, ->(from, to) {
     relation = from ? where("COALESCE(ends_at, starts_at) >= ?", from) : all
     to ? relation.where(starts_at: ...to) : relation
   }
+  scope :search, ->(term) { where("search_text LIKE ? ESCAPE '\\'", "%#{sanitize_sql_like(TextNormalizer.call(term))}%") }
 
   def as_json(options = nil)
-    super({ include: { appointment_type: { only: %i[id name color] }, people: { only: %i[id name] } } }.merge(options || {}))
+    super({ except: :search_text, include: { appointment_type: { only: %i[id name color] }, people: { only: %i[id name] } } }.merge(options || {}))
   end
 
   private

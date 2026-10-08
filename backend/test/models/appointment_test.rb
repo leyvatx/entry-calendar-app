@@ -71,6 +71,22 @@ class AppointmentTest < ActiveSupport::TestCase
     assert_equal [ first, tie, later ], Appointment.where(id: [ later, first, tie ]).chronological
   end
 
+  test "stores the title and notes without accents or case for searching" do
+    appointment = Appointment.create!(title: "Cita MÉDICA", notes: "Llevar  estudios", appointment_type: appointment_types(:one), starts_at: Time.current)
+
+    assert_equal "cita medica llevar estudios", appointment.search_text
+  end
+
+  test "search ignores accents and case and treats % as a normal character" do
+    type = appointment_types(:one)
+    medical = Appointment.create!(title: "Cita Médica", appointment_type: type, starts_at: Time.current)
+    paperwork = Appointment.create!(title: "Trámites", notes: "Pagar el 100% del adeudo", appointment_type: type, starts_at: Time.current)
+
+    assert_equal [ medical ], Appointment.search("MEDICA")
+    assert_equal [ paperwork ], Appointment.search("tramites")
+    assert_equal [ paperwork ], Appointment.search("%")
+  end
+
   test "destroys its people when destroyed" do
     assert_difference("Person.count", -2) do
       appointments(:one).destroy

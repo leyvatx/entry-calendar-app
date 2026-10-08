@@ -24,6 +24,19 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Congreso", "Comida" ], response.parsed_body.map { |appointment| appointment["title"] }
   end
 
+  test "should search appointments by title or notes" do
+    type = appointment_types(:one)
+    Appointment.create!(title: "Cita médica", appointment_type: type, starts_at: "2026-10-07T18:30:00-07:00")
+    Appointment.create!(title: "Dentista", notes: "Llevar la receta MÉDICA", appointment_type: type, starts_at: "2026-10-02T11:00:00-07:00")
+    Appointment.create!(title: "Comida familiar", appointment_type: type, starts_at: "2026-10-08T14:00:00-07:00")
+
+    get appointments_url, params: { q: "medica" }
+
+    assert_response :success
+    assert_equal [ "Dentista", "Cita médica" ], response.parsed_body.map { |appointment| appointment["title"] }
+    assert_not response.parsed_body.first.key?("search_text")
+  end
+
   test "should reject an invalid date filter" do
     get appointments_url, params: { from: "ayer" }
 

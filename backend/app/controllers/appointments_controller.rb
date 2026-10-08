@@ -10,6 +10,7 @@ class AppointmentsController < ApplicationController
       render json: invalid.index_with { [ I18n.t("api.errors.invalid_datetime") ] }, status: :bad_request
     else
       @appointments = Appointment.includes(:appointment_type, :people).chronological.overlapping(range[:from], range[:to])
+      @appointments = @appointments.search(params[:q]) if params[:q].present?
       render json: @appointments
     end
   end

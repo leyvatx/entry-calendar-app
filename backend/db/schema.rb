@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_08_052314) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_08_052723) do
   create_table "appointment_types", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -29,6 +29,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_08_052314) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "location"
+    t.text "search_text", default: "", null: false
     t.index ["appointment_type_id"], name: "index_appointments_on_appointment_type_id"
     t.index ["starts_at"], name: "index_appointments_on_starts_at"
   end

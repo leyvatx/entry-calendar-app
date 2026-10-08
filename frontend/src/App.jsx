@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 import { CalendarOutlined, TagsOutlined, UnorderedListOutlined } from '@ant-design/icons'
+import AppointmentActionsProvider from './components/AppointmentActions.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import CalendarPage from './pages/CalendarPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
@@ -16,7 +17,7 @@ const ROUTES = [
 export default function App() {
   return (
     <Routes>
-      <Route element={<AppLayout routes={ROUTES} />}>
+      <Route element={<AppointmentActionsProvider><AppLayout routes={ROUTES} /></AppointmentActionsProvider>}>
         {ROUTES.map(({ path, element }) => <Route key={path} path={path} element={element} />)}
       </Route>
     </Routes>

@@ -3,6 +3,7 @@ import 'dayjs/locale/es'
 
 dayjs.locale('es')
 
+export const DATE_FORMAT = 'DD/MM/YYYY'
 export const DATE_TIME_FORMAT = 'DD/MM/YYYY HH:mm'
 
 export const toApiDateTime = (d) => (d ? d.second(0).millisecond(0).format() : null)
@@ -21,6 +22,8 @@ export function calendarRange(d) {
 }
 
 export const dayKey = (d) => d.format('YYYY-MM-DD')
+
+export const formatDay = (d) => d.format(DATE_FORMAT)
 
 const startsAt = (a) => dayjs(a.starts_at)
 const endsAt = (a) => fromApiDateTime(a.ends_at)

@@ -3,7 +3,9 @@ import { App, Empty } from 'antd'
 import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons'
 import { api } from '../api.js'
 import { colorLabel } from '../lib/colors.js'
+import { filterTags, normalizeText } from '../lib/filters.js'
 import useRequest from '../hooks/useRequest.js'
+import ActiveFilters from '../components/ActiveFilters.jsx'
 import AsyncState from '../components/AsyncState.jsx'
 import ColorBadge from '../components/ColorBadge.jsx'
 import ContextRow from '../components/ContextRow.jsx'
@@ -11,6 +13,8 @@ import DataTable from '../components/DataTable.jsx'
 import TypeDetailsModal from '../components/TypeDetailsModal.jsx'
 import TypeFormModal from '../components/TypeFormModal.jsx'
 import TopbarAction from '../components/TopbarAction.jsx'
+import TopbarFilters from '../components/TopbarFilters.jsx'
+import TopbarSlot from '../components/TopbarSlot.jsx'
 import TypeTag from '../components/TypeTag.jsx'
 
 const COLUMNS = [
@@ -22,6 +26,10 @@ const COLUMNS = [
 export default function TypesPage() {
   const { modal, message } = App.useApp()
   const { data, error, loading, reload } = useRequest((signal) => api.appointmentTypes.list(signal), [])
+  const [filters, setFilters] = useState({})
+  const filtered = filterTags(filters).length > 0
+  const visible = (data ?? []).filter((type) => (!filters.name || normalizeText(type.name).includes(normalizeText(filters.name)))
+    && (!filters.color || type.color === filters.color))
   const [details, setDetails] = useState(null)
   const [form, setForm] = useState(null)
   const [formKey, setFormKey] = useState(0)
@@ -65,15 +73,19 @@ export default function TypesPage() {
 
   return (
     <>
-      <TopbarAction icon={<PlusOutlined />} label="Nuevo tipo" onClick={() => openForm()} />
+      <TopbarSlot>
+        <TopbarFilters view="types" value={filters} onChange={setFilters} />
+        <TopbarAction icon={<PlusOutlined />} label="Nuevo tipo" onClick={() => openForm()} />
+      </TopbarSlot>
       <AsyncState loading={loading && !data} error={error} onRetry={reload}>
+        <ActiveFilters filters={filters} onChange={setFilters} total={visible.length} one="tipo" many="tipos" />
         <DataTable
           rowKey="id"
           columns={COLUMNS}
-          dataSource={data ?? []}
+          dataSource={visible}
           components={{ body: { row: ContextRow } }}
           onRow={(type) => ({ menu: menu(type) })}
-          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Aún no hay tipos de cita" /> }}
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={filtered ? 'Ningún tipo coincide con los filtros' : 'Aún no hay tipos de cita'} /> }}
         />
       </AsyncState>
       <TypeDetailsModal type={details} onClose={() => setDetails(null)} />

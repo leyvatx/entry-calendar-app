@@ -48,4 +48,10 @@ class AppointmentTest < ActiveSupport::TestCase
     assert_equal "Hospital general", Appointment.new(location: "  Hospital   general ").location
     assert_nil Appointment.new(location: "   ").location
   end
+
+  test "destroys its people when destroyed" do
+    assert_difference("Person.count", -2) do
+      appointments(:one).destroy
+    end
+  end
 end

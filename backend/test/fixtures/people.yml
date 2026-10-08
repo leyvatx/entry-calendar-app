@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+laura:
+  appointment: one
+  name: Laura Méndez
+
+carlos:
+  appointment: one
+  name: Carlos Ruiz

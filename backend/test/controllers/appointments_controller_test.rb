@@ -35,11 +35,38 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should destroy appointment" do
-    assert_difference("Appointment.count", -1) do
+  test "should destroy appointment with its people" do
+    assert_difference({ "Appointment.count" => -1, "Person.count" => -2 }) do
       delete appointment_url(@appointment), as: :json
     end
 
     assert_response :no_content
+  end
+
+  test "should create appointment with people" do
+    post appointments_url, params: { appointment: { appointment_type_id: @appointment.appointment_type_id, title: "Comida familiar", starts_at: @appointment.starts_at, people_attributes: [ { name: "Mamá" }, { name: " Sofía " } ] } }, as: :json
+
+    assert_response :created
+    assert_equal [ "Mamá", "Sofía" ], response.parsed_body["people"].map { |person| person["name"] }
+  end
+
+  test "should update appointment adding and removing people" do
+    laura, carlos = people(:laura), people(:carlos)
+
+    patch appointment_url(@appointment), params: { appointment: { people_attributes: [ { id: carlos.id, name: "Carlos Ruiz" }, { name: "Dra. Ana López" }, { id: laura.id, _destroy: true } ] } }, as: :json
+
+    assert_response :success
+    assert_equal [ "Carlos Ruiz", "Dra. Ana López" ], response.parsed_body["people"].map { |person| person["name"] }
+    assert_not Person.exists?(laura.id)
+  end
+
+  test "should report a person error at the position it was sent" do
+    laura, carlos = people(:laura), people(:carlos)
+
+    patch appointment_url(@appointment), params: { appointment: { people_attributes: [ { id: carlos.id, name: "Carlos Ruiz" }, { name: "  " }, { id: laura.id, _destroy: true } ] } }, as: :json
+
+    assert_response :unprocessable_content
+    assert_equal({ "people[1].name" => [ "El nombre de la persona es obligatorio" ] }, response.parsed_body)
+    assert Person.exists?(laura.id)
   end
 end

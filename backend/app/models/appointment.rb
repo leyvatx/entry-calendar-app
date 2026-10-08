@@ -1,5 +1,8 @@
 class Appointment < ApplicationRecord
   belongs_to :appointment_type
+  has_many :people, -> { order(:id) }, dependent: :destroy, inverse_of: :appointment, index_errors: :nested_attributes_order
+
+  accepts_nested_attributes_for :people, allow_destroy: true
 
   normalizes :title, with: ->(title) { title.squish }
   normalizes :location, with: ->(location) { location.squish.presence }
@@ -8,7 +11,7 @@ class Appointment < ApplicationRecord
   validate :ends_at_not_before_starts_at
 
   def as_json(options = nil)
-    super({ include: { appointment_type: { only: %i[id name color] } } }.merge(options || {}))
+    super({ include: { appointment_type: { only: %i[id name color] }, people: { only: %i[id name] } } }.merge(options || {}))
   end
 
   private

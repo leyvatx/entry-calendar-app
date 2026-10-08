@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_234935) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_08_051811) do
   create_table "appointment_types", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -32,5 +32,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_234935) do
     t.index ["appointment_type_id"], name: "index_appointments_on_appointment_type_id"
   end
 
+  create_table "people", force: :cascade do |t|
+    t.integer "appointment_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appointment_id"], name: "index_people_on_appointment_id"
+  end
+
   add_foreign_key "appointments", "appointment_types"
+  add_foreign_key "people", "appointments"
 end

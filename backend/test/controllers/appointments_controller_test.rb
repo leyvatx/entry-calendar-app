@@ -12,6 +12,25 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Salud Trabajo], response.parsed_body.map { |appointment| appointment["appointment_type"]["name"] }.sort
   end
 
+  test "should list appointments in a date range in chronological order" do
+    type = appointment_types(:one)
+    Appointment.create!(title: "Pasaporte", appointment_type: type, starts_at: "2026-10-10T09:00:00-07:00")
+    Appointment.create!(title: "Comida", appointment_type: type, starts_at: "2026-10-08T14:00:00-07:00", ends_at: "2026-10-08T16:00:00-07:00")
+    Appointment.create!(title: "Congreso", appointment_type: type, starts_at: "2026-10-06T10:00:00-07:00", ends_at: "2026-10-08T18:00:00-07:00")
+
+    get appointments_url, params: { from: "2026-10-07T00:00:00-07:00", to: "2026-10-10T09:00:00-07:00" }
+
+    assert_response :success
+    assert_equal [ "Congreso", "Comida" ], response.parsed_body.map { |appointment| appointment["title"] }
+  end
+
+  test "should reject an invalid date filter" do
+    get appointments_url, params: { from: "ayer" }
+
+    assert_response :bad_request
+    assert_equal({ "from" => [ "Debe ser una fecha y hora ISO 8601, por ejemplo 2026-10-07T00:00:00-07:00" ] }, response.parsed_body)
+  end
+
   test "should create appointment" do
     assert_difference("Appointment.count") do
       post appointments_url, params: { appointment: { appointment_type_id: @appointment.appointment_type_id, title: "Cita médica", location: "Hospital general", ends_at: @appointment.ends_at, notes: @appointment.notes, starts_at: @appointment.starts_at } }, as: :json

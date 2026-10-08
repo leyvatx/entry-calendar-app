@@ -3,9 +3,15 @@ class AppointmentsController < ApplicationController
 
   # GET /appointments
   def index
-    @appointments = Appointment.includes(:appointment_type, :people)
+    range = %i[from to].index_with { |name| time_param(name) }
+    invalid = range.keys.select { |name| params[name].present? && range[name].nil? }
 
-    render json: @appointments
+    if invalid.any?
+      render json: invalid.index_with { [ I18n.t("api.errors.invalid_datetime") ] }, status: :bad_request
+    else
+      @appointments = Appointment.includes(:appointment_type, :people).chronological.overlapping(range[:from], range[:to])
+      render json: @appointments
+    end
   end
 
   # GET /appointments/1
@@ -47,5 +53,11 @@ class AppointmentsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def appointment_params
       params.require(:appointment).permit(:title, :notes, :location, :appointment_type_id, :starts_at, :ends_at, people_attributes: %i[id name _destroy])
+    end
+
+    def time_param(name)
+      Time.zone.iso8601(params[name]) if params[name].present?
+    rescue ArgumentError, TypeError
+      nil
     end
 end

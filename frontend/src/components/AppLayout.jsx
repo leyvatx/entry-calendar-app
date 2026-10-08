@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, matchPath, useLocation } from 'react-router'
-import { Button, Drawer, Flex, Grid, Layout, Tooltip, Typography, theme } from 'antd'
-import { LeftOutlined, MenuOutlined, RightOutlined } from '@ant-design/icons'
+import { Button, Drawer, Flex, Grid, Layout, Typography, theme } from 'antd'
+import { MenuOutlined } from '@ant-design/icons'
 import AppSidebar from './AppSidebar.jsx'
 
 const SIDER_WIDTH = 240
@@ -39,7 +39,6 @@ export default function AppLayout({ routes }) {
     setCollapsed(!collapsed)
     saveCollapsed(!collapsed)
   }
-  const toggleLabel = collapsed ? 'Expandir menú' : 'Contraer menú'
 
   return (
     <Layout style={{ height: '100vh' }}>
@@ -52,28 +51,13 @@ export default function AppLayout({ routes }) {
           width={SIDER_WIDTH}
           collapsedWidth={SIDER_COLLAPSED_WIDTH}
           style={{
-            position: 'sticky', insetBlockStart: 0, height: '100vh', zIndex: token.zIndexBase + 20,
+            position: 'sticky', insetBlockStart: 0, height: '100vh',
             borderInlineEnd: `${token.lineWidth}px solid ${token.colorSplit}`,
           }}
         >
           <div style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
-            <AppSidebar collapsed={collapsed} items={menuItems} onExpand={toggle} />
+            <AppSidebar collapsed={collapsed} items={menuItems} onToggle={toggle} />
           </div>
-          <Tooltip title={toggleLabel} placement="right">
-            <Button
-              type="primary"
-              shape="circle"
-              size="small"
-              icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
-              aria-label={toggleLabel}
-              onClick={toggle}
-              style={{
-                position: 'absolute',
-                insetBlockStart: (token.controlHeightLG * 1.6 - token.controlHeightSM) / 2,
-                insetInlineEnd: -token.controlHeightSM / 2,
-              }}
-            />
-          </Tooltip>
         </Layout.Sider>
       )}
       <Layout style={{ minWidth: 0 }}>

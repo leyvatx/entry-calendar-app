@@ -28,6 +28,7 @@ export default function CalendarPage() {
   const { data, error, loading, reload } = useRequest(
     (signal) => api.appointments.list({ from: start, to: end, q: filters.q, typeIds: filters.types }, signal),
     [start.valueOf(), filters, version],
+    { live: true },
   )
   const byDay = indexByDay(data ?? [], start, end)
   const full = Boolean(screens.lg)

@@ -16,7 +16,7 @@ export default function UpcomingPage() {
   const { openCreate, version } = useAppointmentActions()
   const [filters, setFilters] = useState({})
   const query = appointmentsQuery(filters, startOfToday())
-  const { data, error, loading, reload } = useRequest((signal) => api.appointments.list(query, signal), [filters, version])
+  const { data, error, loading, reload } = useRequest((signal) => api.appointments.list(query, signal), [filters, version], { live: true })
   const filtered = filterTags(filters).length > 0
 
   return (

@@ -3,6 +3,7 @@ import { App } from 'antd'
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons'
 import { api } from '../api.js'
 import { AppointmentActionsContext } from '../hooks/useAppointmentActions.js'
+import { notifyChange } from '../lib/sync.js'
 import AppointmentDetailsModal from './AppointmentDetailsModal.jsx'
 import AppointmentFormModal from './AppointmentFormModal.jsx'
 
@@ -13,7 +14,10 @@ export default function AppointmentActionsProvider({ children }) {
   const [formKey, setFormKey] = useState(0)
   const [version, setVersion] = useState(0)
 
-  const refresh = () => setVersion((current) => current + 1)
+  const refresh = () => {
+    setVersion((current) => current + 1)
+    notifyChange()
+  }
   const openForm = (state) => {
     setDetails(null)
     setForm(state)

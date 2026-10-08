@@ -4,6 +4,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-de
 import { api } from '../api.js'
 import { colorLabel } from '../lib/colors.js'
 import { filterTags, normalizeText } from '../lib/filters.js'
+import { notifyChange } from '../lib/sync.js'
 import useRequest from '../hooks/useRequest.js'
 import ActiveFilters from '../components/ActiveFilters.jsx'
 import AsyncState from '../components/AsyncState.jsx'
@@ -25,7 +26,7 @@ const COLUMNS = [
 
 export default function TypesPage() {
   const { modal, message } = App.useApp()
-  const { data, error, loading, reload } = useRequest((signal) => api.appointmentTypes.list(signal), [])
+  const { data, error, loading, reload } = useRequest((signal) => api.appointmentTypes.list(signal), [], { live: true })
   const [filters, setFilters] = useState({})
   const filtered = filterTags(filters).length > 0
   const visible = (data ?? []).filter((type) => (!filters.name || normalizeText(type.name).includes(normalizeText(filters.name)))
@@ -34,6 +35,10 @@ export default function TypesPage() {
   const [form, setForm] = useState(null)
   const [formKey, setFormKey] = useState(0)
 
+  const changed = () => {
+    reload()
+    notifyChange()
+  }
   const openForm = (type) => {
     setForm({ type })
     setFormKey((key) => key + 1)
@@ -47,11 +52,11 @@ export default function TypesPage() {
     onOk: () => api.appointmentTypes.remove(type.id)
       .then(() => {
         message.success('Tipo eliminado')
-        reload()
+        changed()
       })
       .catch((error) => {
         message.error(error.message)
-        if (error.status === 404) reload()
+        if (error.status === 404) changed()
       }),
   })
   const menu = (type) => ({
@@ -96,7 +101,7 @@ export default function TypesPage() {
         onClose={() => setForm(null)}
         onSaved={() => {
           setForm(null)
-          reload()
+          changed()
         }}
       />
     </>

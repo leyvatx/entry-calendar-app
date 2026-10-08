@@ -18,6 +18,7 @@ class Appointment < ApplicationRecord
     to ? relation.where(starts_at: ...to) : relation
   }
   scope :search, ->(term) { where("search_text LIKE ? ESCAPE '\\'", "%#{sanitize_sql_like(TextNormalizer.call(term))}%") }
+  scope :of_types, ->(ids) { where(appointment_type_id: ids) }
 
   def as_json(options = nil)
     super({ except: :search_text, include: { appointment_type: { only: %i[id name color] }, people: { only: %i[id name] } } }.merge(options || {}))

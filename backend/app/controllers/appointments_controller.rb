@@ -3,16 +3,17 @@ class AppointmentsController < ApplicationController
 
   # GET /appointments
   def index
-    range = %i[from to].index_with { |name| time_param(name) }
-    invalid = range.keys.select { |name| params[name].present? && range[name].nil? }
+    from, to, type_ids = time_param(:from), time_param(:to), type_ids_param
+    errors = {}
+    errors[:from] = [ I18n.t("api.errors.invalid_datetime") ] if params[:from].present? && from.nil?
+    errors[:to] = [ I18n.t("api.errors.invalid_datetime") ] if params[:to].present? && to.nil?
+    errors[:appointment_type_ids] = [ I18n.t("api.errors.invalid_ids") ] if params[:appointment_type_ids].present? && type_ids.nil?
+    return render json: errors, status: :bad_request if errors.any?
 
-    if invalid.any?
-      render json: invalid.index_with { [ I18n.t("api.errors.invalid_datetime") ] }, status: :bad_request
-    else
-      @appointments = Appointment.includes(:appointment_type, :people).chronological.overlapping(range[:from], range[:to])
-      @appointments = @appointments.search(params[:q]) if params[:q].present?
-      render json: @appointments
-    end
+    @appointments = Appointment.includes(:appointment_type, :people).chronological.overlapping(from, to)
+    @appointments = @appointments.search(params[:q]) if params[:q].present?
+    @appointments = @appointments.of_types(type_ids) if type_ids
+    render json: @appointments
   end
 
   # GET /appointments/1
@@ -59,6 +60,13 @@ class AppointmentsController < ApplicationController
     def time_param(name)
       Time.zone.iso8601(params[name]) if params[name].present?
     rescue ArgumentError, TypeError
+      nil
+    end
+
+    def type_ids_param
+      ids = params[:appointment_type_ids]
+      ids.split(",").map { |id| Integer(id, 10) } if ids.is_a?(String) && ids.present?
+    rescue ArgumentError
       nil
     end
 end

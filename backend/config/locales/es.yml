@@ -30,3 +30,4 @@ es:
   api:
     errors:
       invalid_datetime: "Debe ser una fecha y hora ISO 8601, por ejemplo 2026-10-07T00:00:00-07:00"
+      invalid_ids: "Debe ser una lista de números separados por comas, por ejemplo 2,5"

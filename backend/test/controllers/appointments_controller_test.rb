@@ -37,6 +37,28 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
     assert_not response.parsed_body.first.key?("search_text")
   end
 
+  test "should filter appointments by type and combine it with the search" do
+    health, work = appointment_types(:one), appointment_types(:two)
+    paperwork = AppointmentType.create!(name: "Trámites")
+    Appointment.create!(title: "Cita médica", appointment_type: health, starts_at: "2026-10-07T18:30:00-07:00")
+    Appointment.create!(title: "Junta", notes: "Revisar la cita médica del equipo", appointment_type: work, starts_at: "2026-10-07T08:00:00-07:00")
+    Appointment.create!(title: "Pasaporte", appointment_type: paperwork, starts_at: "2026-10-10T09:00:00-07:00")
+    from = "2026-10-01T00:00:00-07:00"
+
+    get appointments_url, params: { from: from, appointment_type_ids: "#{work.id},#{paperwork.id}" }
+    assert_equal [ "Junta", "Pasaporte" ], response.parsed_body.map { |appointment| appointment["title"] }
+
+    get appointments_url, params: { from: from, q: "medica", appointment_type_ids: health.id.to_s }
+    assert_equal [ "Cita médica" ], response.parsed_body.map { |appointment| appointment["title"] }
+  end
+
+  test "should reject type ids that are not numbers" do
+    get appointments_url, params: { appointment_type_ids: "salud,2" }
+
+    assert_response :bad_request
+    assert_equal({ "appointment_type_ids" => [ "Debe ser una lista de números separados por comas, por ejemplo 2,5" ] }, response.parsed_body)
+  end
+
   test "should reject an invalid date filter" do
     get appointments_url, params: { from: "ayer" }
 

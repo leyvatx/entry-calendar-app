@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router'
-import { Avatar, Flex, Menu, Typography, theme } from 'antd'
-import { CalendarOutlined } from '@ant-design/icons'
+import { Avatar, Divider, Flex, Menu, Switch, Tooltip, Typography, theme } from 'antd'
+import { CalendarOutlined, MoonOutlined } from '@ant-design/icons'
+import useThemeMode from '../hooks/useThemeMode.js'
 
 export default function AppSidebar({ collapsed, items, onNavigate }) {
   const { token } = theme.useToken()
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { dark, toggle } = useThemeMode()
   return (
     <Flex vertical style={{ height: '100%' }}>
       <Flex
@@ -29,6 +31,13 @@ export default function AppSidebar({ collapsed, items, onNavigate }) {
         onClick={({ key }) => { navigate(key); onNavigate?.() }}
         style={{ borderInlineEnd: 0, flex: 1 }}
       />
+      <Divider style={{ margin: 0 }} />
+      <Flex align="center" justify={collapsed ? 'center' : 'space-between'} style={{ flex: 'none', padding: token.padding }}>
+        {!collapsed && <Flex align="center" gap="small"><MoonOutlined /><Typography.Text>Modo oscuro</Typography.Text></Flex>}
+        <Tooltip title={collapsed ? 'Modo oscuro' : null} placement="right">
+          <Switch size="small" checked={dark} onChange={toggle} aria-label="Modo oscuro" />
+        </Tooltip>
+      </Flex>
     </Flex>
   )
 }

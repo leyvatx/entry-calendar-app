@@ -1,13 +1,23 @@
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { Avatar, Divider, Flex, Menu, Switch, Tooltip, Typography, theme } from 'antd'
-import { CalendarOutlined, MoonOutlined } from '@ant-design/icons'
+import { Avatar, Button, Divider, Flex, Input, Menu, Switch, Tooltip, Typography, theme } from 'antd'
+import { CalendarOutlined, MoonOutlined, SearchOutlined } from '@ant-design/icons'
+import { normalizeText } from '../lib/filters.js'
 import useThemeMode from '../hooks/useThemeMode.js'
 
-export default function AppSidebar({ collapsed, items, onNavigate }) {
+export default function AppSidebar({ collapsed, items, onExpand, onNavigate }) {
   const { token } = theme.useToken()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { dark, toggle } = useThemeMode()
+  const [query, setQuery] = useState('')
+  const [focusSearch, setFocusSearch] = useState(false)
+  const shown = collapsed ? items : items.filter((item) => normalizeText(item.label).includes(normalizeText(query)))
+  const go = (key) => {
+    navigate(key)
+    setQuery('')
+    onNavigate?.()
+  }
   return (
     <Flex vertical style={{ height: '100%' }}>
       <Flex
@@ -24,13 +34,46 @@ export default function AppSidebar({ collapsed, items, onNavigate }) {
           </Flex>
         )}
       </Flex>
-      <Menu
-        mode="inline"
-        selectedKeys={[pathname]}
-        items={items}
-        onClick={({ key }) => { navigate(key); onNavigate?.() }}
-        style={{ borderInlineEnd: 0, flex: 1 }}
-      />
+      <div style={{ flex: 'none', paddingInline: collapsed ? token.paddingSM : token.padding, paddingBlockEnd: token.paddingXS }}>
+        {collapsed ? (
+          <Tooltip title="Buscar módulo" placement="right">
+            <Button
+              type="text"
+              block
+              icon={<SearchOutlined />}
+              aria-label="Buscar módulo"
+              onClick={() => {
+                setFocusSearch(true)
+                onExpand()
+              }}
+            />
+          </Tooltip>
+        ) : (
+          <Input
+            allowClear
+            autoFocus={focusSearch}
+            prefix={<SearchOutlined />}
+            placeholder="Buscar módulo…"
+            aria-label="Buscar módulo"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onPressEnter={() => shown[0] && go(shown[0].key)}
+            onKeyDown={(event) => event.key === 'Escape' && setQuery('')}
+            onBlur={() => setFocusSearch(false)}
+          />
+        )}
+      </div>
+      {shown.length ? (
+        <Menu
+          mode="inline"
+          selectedKeys={[pathname]}
+          items={shown}
+          onClick={({ key }) => go(key)}
+          style={{ borderInlineEnd: 0, flex: 1 }}
+        />
+      ) : (
+        <Typography.Text type="secondary" style={{ flex: 1, paddingInline: token.paddingLG }}>Ningún módulo coincide</Typography.Text>
+      )}
       <Divider style={{ margin: 0 }} />
       <Flex align="center" justify={collapsed ? 'center' : 'space-between'} style={{ flex: 'none', padding: token.padding }}>
         {!collapsed && <Flex align="center" gap="small"><MoonOutlined /><Typography.Text>Modo oscuro</Typography.Text></Flex>}

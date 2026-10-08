@@ -57,7 +57,7 @@ export default function AppLayout({ routes }) {
           }}
         >
           <div style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
-            <AppSidebar collapsed={collapsed} items={menuItems} />
+            <AppSidebar collapsed={collapsed} items={menuItems} onExpand={toggle} />
           </div>
           <Tooltip title={toggleLabel} placement="right">
             <Button

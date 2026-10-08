@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { describe, expect, test } from 'vitest'
 import {
-  DATE_TIME_FORMAT, appointmentDayKeys, calendarRange, chronological, dayKey, formatDayHeading, formatTimeRange, formatWhen,
+  DATE_TIME_FORMAT, appointmentDayKeys, calendarRange, chronological, dayKey, formatDateTime, formatDayHeading, formatTimeRange, formatWhen,
   fromApiDateTime, indexByDay, isInProgress, isMultiDay, relativeDay, shownDay, startOfToday, toApiDateTime,
 } from './dates.js'
 
@@ -23,6 +23,7 @@ describe('API conversion', () => {
 
   test('DATE_TIME_FORMAT shows day first and 24 h', () => {
     expect(dayjs('2026-10-07T18:30').format(DATE_TIME_FORMAT)).toBe('07/10/2026 18:30')
+    expect(formatDateTime('2026-10-07T18:30')).toBe('07/10/2026 18:30')
   })
 })
 

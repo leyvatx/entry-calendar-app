@@ -9,6 +9,10 @@ export const toApiDateTime = (d) => (d ? d.second(0).millisecond(0).format() : n
 
 export const fromApiDateTime = (s) => (s ? dayjs(s) : null)
 
+export const formatDateTime = (s) => dayjs(s).format(DATE_TIME_FORMAT)
+
+export const currentTime = () => dayjs()
+
 export const startOfToday = () => dayjs().startOf('day')
 
 export function calendarRange(d) {

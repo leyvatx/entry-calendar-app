@@ -31,6 +31,7 @@ export default function AppLayout({ routes }) {
     return saved ? saved === 'contraido' : !window.matchMedia(`(min-width: ${token.screenLGMin}px)`).matches
   })
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [actionsNode, setActionsNode] = useState(null)
   const hasSider = Boolean(screens.md)
   const title = routes.find((r) => matchPath(r.path, pathname))?.title
   const menuItems = routes.filter((r) => r.icon).map((r) => ({ key: r.path, icon: r.icon, label: r.title }))
@@ -41,7 +42,7 @@ export default function AppLayout({ routes }) {
   const toggleLabel = collapsed ? 'Expandir menú' : 'Contraer menú'
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh' }}>
       {hasSider && (
         <Layout.Sider
           theme="light"
@@ -75,7 +76,7 @@ export default function AppLayout({ routes }) {
           </Tooltip>
         </Layout.Sider>
       )}
-      <Layout>
+      <Layout style={{ minWidth: 0 }}>
         <Layout.Header
           style={{
             position: 'sticky', insetBlockStart: 0, zIndex: token.zIndexBase + 10, background: token.colorBgContainer,
@@ -83,13 +84,21 @@ export default function AppLayout({ routes }) {
             borderBlockEnd: `${token.lineWidth}px solid ${token.colorSplit}`,
           }}
         >
-          <Flex align="center" gap="small" style={{ height: '100%', minWidth: 0 }}>
-            {!hasSider && <Button type="text" icon={<MenuOutlined />} aria-label="Abrir menú" onClick={() => setDrawerOpen(true)} />}
-            <Typography.Title level={5} ellipsis style={{ margin: 0 }}>{title}</Typography.Title>
+          <Flex align="center" justify="space-between" gap="middle" style={{ height: '100%' }}>
+            <Flex align="center" gap="small" style={{ minWidth: 0 }}>
+              {!hasSider && <Button type="text" icon={<MenuOutlined />} aria-label="Abrir menú" onClick={() => setDrawerOpen(true)} />}
+              <Typography.Title level={5} ellipsis style={{ margin: 0 }}>{title}</Typography.Title>
+            </Flex>
+            <Flex ref={setActionsNode} align="center" gap="small" />
           </Flex>
         </Layout.Header>
-        <Layout.Content style={{ padding: screens.md ? token.paddingLG : token.padding }}>
-          <Outlet />
+        <Layout.Content
+          style={{
+            padding: screens.md ? token.paddingSM : token.paddingXS,
+            display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'auto',
+          }}
+        >
+          <Outlet context={{ actionsNode }} />
         </Layout.Content>
       </Layout>
       {!hasSider && (

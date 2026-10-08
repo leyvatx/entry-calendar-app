@@ -7,6 +7,10 @@ class Appointment < ApplicationRecord
   validates :title, :starts_at, presence: true
   validate :ends_at_not_before_starts_at
 
+  def as_json(options = nil)
+    super({ include: { appointment_type: { only: %i[id name color] } } }.merge(options || {}))
+  end
+
   private
     def ends_at_not_before_starts_at
       errors.add(:ends_at, :before_starts_at) if starts_at && ends_at && ends_at < starts_at

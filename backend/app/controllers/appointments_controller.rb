@@ -3,7 +3,7 @@ class AppointmentsController < ApplicationController
 
   # GET /appointments
   def index
-    @appointments = Appointment.all
+    @appointments = Appointment.includes(:appointment_type)
 
     render json: @appointments
   end

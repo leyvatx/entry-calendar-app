@@ -5,9 +5,11 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
     @appointment = appointments(:one)
   end
 
-  test "should get index" do
+  test "should get index with the appointment type of each appointment" do
     get appointments_url, as: :json
+
     assert_response :success
+    assert_equal %w[Salud Trabajo], response.parsed_body.map { |appointment| appointment["appointment_type"]["name"] }.sort
   end
 
   test "should create appointment" do
@@ -20,9 +22,12 @@ class AppointmentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Hospital general", response.parsed_body["location"]
   end
 
-  test "should show appointment" do
+  test "should show appointment with its type" do
     get appointment_url(@appointment), as: :json
+
     assert_response :success
+    type = appointment_types(:one)
+    assert_equal({ "id" => type.id, "name" => "Salud", "color" => "blue" }, response.parsed_body["appointment_type"])
   end
 
   test "should update appointment" do

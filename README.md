@@ -1,3 +1,122 @@
+# Agenda
+
+Front-end web de la agenda hecho con React 19, Vite y Ant Design 6 (`frontend/`), sobre el API de Rails 7.2 con SQLite (`backend/`). Funciona en computadora, tableta y teléfono.
+
+## Instalación
+
+### 1. Requisitos
+
+- [Git](https://git-scm.com/downloads)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) en Windows o macOS, o Docker Engine con el plugin Docker Compose en Linux
+
+No hace falta instalar Ruby ni Node: todo corre dentro de los contenedores. Los puertos 5173 y 65432 deben estar libres.
+
+### 2. Clonar el repositorio
+
+```bash
+git clone https://github.com/leyvatx/entry-calendar-app.git
+cd entry-calendar-app
+```
+
+### 3. Levantar la app
+
+Con Docker Desktop abierto:
+
+```bash
+docker compose up --build
+```
+
+El primer arranque tarda unos minutos: construye la imagen del API, instala las gemas y los paquetes de npm, crea la base de datos y carga citas de ejemplo con fechas relativas al día de hoy. Está lista cuando la terminal muestra estas dos líneas:
+
+```text
+api-1  | * Listening on http://0.0.0.0:3000
+web-1  |   ➜  Local:   http://localhost:5173/
+```
+
+### 4. Abrir la app
+
+- App: http://localhost:5173
+- API: http://localhost:65432 (por ejemplo, http://localhost:65432/appointments)
+
+La app llama al API a través del proxy de Vite (`/api`), por eso no hace falta configurar CORS ni cambiar direcciones.
+
+### Detener y volver a arrancar
+
+- Detener: `Ctrl+C` en la terminal, o `docker compose down` desde otra.
+- Volver a arrancar: `docker compose up`. Los datos se conservan entre arranques.
+
+## Pruebas
+
+Con la app levantada, desde otra terminal:
+
+```bash
+docker compose exec api bin/rails test
+docker compose exec api bundle exec rubocop
+docker compose exec web npm test
+docker compose exec web npm run lint
+```
+
+## Requisitos y dónde se cumplen
+
+| # | Requisito | Dónde |
+|---|---|---|
+| 1 | Web-app responsiva | Revisada en teléfono (375 px), tableta (820 px) y computadora (1280 px). En teléfonos el menú se abre desde la izquierda y las tablas pasan a una sola columna |
+| 2 | Próximas citas en orden cronológico | Página principal (`/`): tabla de la más próxima a la más lejana, con `GET /appointments?from=<inicio de hoy>` |
+| 3 | Índice de tipos de cita | Tipos de cita (`/types`), con el número de citas de cada tipo |
+| 4 | Crear, editar y eliminar tipos | "Nuevo tipo" en el topbar; Editar y Eliminar en el menú contextual de cada fila |
+| 5 | Crear, editar y eliminar citas | "Nueva cita" en el topbar y "Nueva cita este día" en el calendario; Editar y Eliminar (con confirmación) en el menú contextual de cada fila |
+| 6 | Calendario del mes | Calendario (`/calendar`): cada día marca sus citas con el color de su tipo y al elegirlo muestra sus citas |
+| 7 | Validaciones en el back-end | Modelos `AppointmentType`, `Appointment` y `Person`, con mensajes en `config/locales/es.yml` y pruebas |
+| 8 | Buscador | Lupa del topbar, campo "Título o notas": busca en título y notas sin distinguir acentos ni mayúsculas (`GET /appointments?q=`). Con "Incluir citas pasadas" busca en todo el historial |
+| 9 | Color por tipo | `appointment_types.color`, un color de la paleta de Ant Design; etiqueta de color en las tablas y punto de color en el calendario |
+| 10 | Ubicación | `appointments.location` |
+| 11 | Personas de interés | Tabla `people` (cada cita tiene sus personas); se capturan en el modal de cita |
+
+Validaciones del back-end:
+
+- Tipo de cita: nombre obligatorio y único sin distinguir acentos ni mayúsculas; color de la paleta. No se puede eliminar un tipo que tiene citas.
+- Cita: título, tipo y fecha de inicio obligatorios; la fecha de fin no puede ser anterior a la de inicio.
+- Persona: nombre obligatorio.
+
+## Manual de uso
+
+- **Navegar:** el sidebar se contrae y se expande con el botón junto a la marca de Agenda, y recuerda cómo lo dejaste. "Buscar módulo…" filtra las opciones del menú y Enter abre la primera. En teléfonos, el botón de menú del topbar abre el sidebar.
+- **Crear:** "Nueva cita" o "Nuevo tipo" en el topbar (en teléfonos, el botón "+").
+- **Ver detalles, editar o eliminar:** en computadora, clic derecho sobre la fila; en pantallas táctiles, desliza la fila de izquierda a derecha. Se abre un menú con Ver detalles, Editar y Eliminar. Un clic o un toque normal no hace nada.
+- **Filtrar y buscar:** la lupa del topbar o la tecla `/` abre los filtros de la pantalla actual:
+  - Próximas citas: Incluir citas pasadas, Título o notas, Tipo, Desde y Hasta.
+  - Calendario: Título o notas y Tipo.
+  - Tipos de cita: Nombre y Color.
+
+  Los filtros aplicados se muestran como etiquetas: la × quita uno y "Limpiar filtros" los quita todos. Al recargar la página se limpian.
+- **Calendario:** cambia de mes con los selectores de arriba o eligiendo un día del mes anterior o siguiente. Al elegir un día se abre un modal con sus citas y el botón "Nueva cita este día", que propone las 09:00 de ese día.
+- **Modo oscuro:** interruptor al pie del sidebar; la elección se recuerda.
+- **Sin recargar:** lo que guardas o eliminas se ve al instante, también en otras pestañas abiertas. Los cambios hechos desde otra computadora aparecen al volver a la pestaña o en 30 segundos como máximo.
+
+## Decisiones
+
+- **Rangos con `from` y `to`:** el API devuelve las citas que se traslapan con el rango. El navegador calcula el rango con la hora local, así una cita del 31 a las 23:30 no se pasa al mes siguiente. El mismo endpoint sirve para próximas citas, el calendario y los filtros.
+- **Texto normalizado:** la búsqueda y el nombre único de los tipos comparan contra columnas guardadas sin acentos ni mayúsculas.
+- **`description` pasó a llamarse `title`:** el enunciado pide título. El commit está marcado como cambio incompatible.
+- **Colores de la paleta de Ant Design:** el texto de las etiquetas siempre se lee bien, también en modo oscuro.
+- **Próximas citas en una tabla cronológica:** se lee de arriba abajo; las citas en curso aparecen en el día de hoy con la etiqueta "En curso".
+- **Modales:** crear, editar y ver detalles abren un modal sobre la pantalla actual; al cerrarlo sigues donde estabas.
+- **Menú contextual:** las acciones de cada fila están en el menú contextual (clic derecho o deslizar), sin botones repetidos en cada fila.
+- **Filtros por pantalla:** cada pantalla tiene los suyos en la lupa del topbar y se limpian al recargar.
+- **Zona horaria del API:** `America/Tijuana`.
+
+## Limitaciones conocidas
+
+- Rails 7.2 ya no recibe parches de seguridad (Brakeman lo advierte); actualizar a 8.x sería un cambio aparte.
+- No hay autenticación.
+- El API no pagina: devuelve todas las citas del rango y la tabla pagina en el navegador (20 por página).
+- La búsqueda recorre la tabla (`LIKE '%…%'`), suficiente para el volumen de una agenda.
+- La semana del calendario empieza en lunes.
+
+---
+
+# Enunciado original
+
 ## # Bienvenido!
 
 Este es un repositorio para evaluar candidatos para el equipo de desarrollo de Grupo Petsa.

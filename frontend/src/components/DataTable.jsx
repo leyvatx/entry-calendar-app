@@ -34,20 +34,22 @@ export default function DataTable({ dataSource, pageSize = 20, ...tableProps }) 
           sticky={{ getContainer: () => scrollRef.current }}
         />
       </div>
-      <Pagination
-        align="end"
-        size={screens.md ? 'medium' : 'small'}
-        current={current}
-        pageSize={pageSize}
-        total={dataSource.length}
-        showSizeChanger={false}
-        showTotal={(total, [from, to]) => `${from}–${to} de ${total} registros`}
-        onChange={(next) => {
-          setPage(next)
-          scrollRef.current?.scrollTo({ top: 0 })
-        }}
-        style={{ padding: token.paddingSM, borderBlockStart: `${token.lineWidth}px solid ${token.colorSplit}` }}
-      />
+      {dataSource.length > 0 && (
+        <Pagination
+          align="end"
+          size={screens.md ? 'medium' : 'small'}
+          current={current}
+          pageSize={pageSize}
+          total={dataSource.length}
+          showSizeChanger={false}
+          showTotal={(total, [from, to]) => `${from}–${to} de ${total} registros`}
+          onChange={(next) => {
+            setPage(next)
+            scrollRef.current?.scrollTo({ top: 0 })
+          }}
+          style={{ padding: token.paddingSM, borderBlockStart: `${token.lineWidth}px solid ${token.colorSplit}` }}
+        />
+      )}
     </Flex>
   )
 }

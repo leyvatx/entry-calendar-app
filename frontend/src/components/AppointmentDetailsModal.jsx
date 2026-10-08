@@ -4,7 +4,7 @@ import TypeTag from './TypeTag.jsx'
 
 export default function AppointmentDetailsModal({ appointment, onClose }) {
   return (
-    <Modal open={Boolean(appointment)} title={appointment?.title} onCancel={onClose} footer={null}>
+    <Modal open={Boolean(appointment)} title={appointment?.title} onCancel={onClose} footer={null} destroyOnHidden>
       {appointment && (
         <Descriptions
           column={1}
